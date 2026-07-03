@@ -65,6 +65,104 @@ window._initPlaces = function () {
     input.value = ''; input.focus();
   }
 
+  // ── Autocomplete (Photon / OpenStreetMap) ──────
+  const wrapper  = input.closest('.autocomplete-wrapper');
+  const dropdown = document.createElement('div');
+  dropdown.className = 'autocomplete-dropdown';
+  wrapper.appendChild(dropdown);
+
+  let debounceTimer = null;
+  let abortCtrl     = null;
+  let activeIdx     = -1;
+  let suggestions   = [];
+
+  function closeDrop() {
+    dropdown.classList.remove('open');
+    activeIdx = -1;
+  }
+
+  function setActive(idx) {
+    const items = dropdown.querySelectorAll('.autocomplete-item');
+    items.forEach(el => el.classList.remove('ac-active'));
+    if (idx >= 0 && idx < items.length) {
+      items[idx].classList.add('ac-active');
+      items[idx].scrollIntoView({ block: 'nearest' });
+    }
+    activeIdx = (idx >= 0 && idx < items.length) ? idx : -1;
+  }
+
+  function renderDrop() {
+    dropdown.innerHTML = '';
+    if (!suggestions.length) { closeDrop(); return; }
+    suggestions.forEach(s => {
+      const item = document.createElement('div');
+      item.className = 'autocomplete-item';
+      item.innerHTML = `<div class="autocomplete-item-name">${s.label}</div>` +
+                       (s.sub ? `<div class="autocomplete-item-sub">${s.sub}</div>` : '');
+      item.addEventListener('mousedown', e => {
+        e.preventDefault();   // keep focus on input
+        input.value = s.label;
+        closeDrop();
+        input.focus();
+      });
+      dropdown.appendChild(item);
+    });
+    dropdown.classList.add('open');
+    activeIdx = -1;
+  }
+
+  async function fetchSuggestions(query) {
+    if (abortCtrl) abortCtrl.abort();
+    abortCtrl = new AbortController();
+    try {
+      const res  = await fetch(
+        `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=6&lang=en`,
+        { signal: abortCtrl.signal }
+      );
+      const data = await res.json();
+      suggestions = (data.features || []).map(f => {
+        const p    = f.properties;
+        const name = p.name || p.city || '';
+        const sub  = [p.city, p.state, p.country]
+          .filter(x => x && x !== name)
+          .slice(0, 2).join(', ');
+        return { label: name, sub };
+      }).filter(s => s.label);
+      renderDrop();
+    } catch (err) {
+      if (err.name !== 'AbortError') closeDrop();
+    }
+  }
+
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    const q = input.value.trim();
+    if (q.length < 2) { closeDrop(); return; }
+    debounceTimer = setTimeout(() => fetchSuggestions(q), 300);
+  });
+
+  // Keyboard navigation — registered BEFORE the addPlace keydown handler
+  input.addEventListener('keydown', e => {
+    if (!dropdown.classList.contains('open')) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActive(Math.min(activeIdx + 1, suggestions.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActive(Math.max(activeIdx - 1, -1));
+    } else if (e.key === 'Enter' && activeIdx >= 0) {
+      e.preventDefault();
+      e.stopImmediatePropagation();   // block addPlace listener below
+      input.value = suggestions[activeIdx].label;
+      closeDrop();
+    } else if (e.key === 'Escape') {
+      closeDrop();
+    }
+  });
+
+  input.addEventListener('blur', () => setTimeout(closeDrop, 150));
+  // ───────────────────────────────────────────────
+
   addBtn.addEventListener('click', addPlace);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') addPlace(); });
   clearBtn.addEventListener('click', () => { places = places.filter(p => !p.visited); save(); render(); });
