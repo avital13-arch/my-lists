@@ -28,6 +28,18 @@ window._initPlaces = function () {
     clearBtn.disabled = visited.length === 0;
   }
 
+  function openPlaceInMaps(placeText) {
+    const query = encodeURIComponent((placeText || '').trim());
+    if (!query) return;
+
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const url = isIOS
+      ? `https://maps.apple.com/?q=${query}`
+      : `https://www.google.com/maps/search/?api=1&query=${query}`;
+
+    window.open(url, '_blank', 'noopener');
+  }
+
   function createRow(place) {
     const li = document.createElement('li');
     li.className = 'item-row';
@@ -39,12 +51,19 @@ window._initPlaces = function () {
     checkbox.addEventListener('change', () => { place.visited = !place.visited; save(); render(); });
 
     const label = document.createElement('span');
-    label.className = 'item-label';
+    label.className = 'item-label place-map-link';
     label.textContent = place.text;
     label.setAttribute('tabindex', '0');
+    label.setAttribute('role', 'link');
+    label.setAttribute('title', 'Open in Maps');
     const onEdit = () => inlineEdit(label, place, () => { save(); render(); });
-    label.addEventListener('dblclick', onEdit);
-    label.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); onEdit(); } });
+    label.addEventListener('click', () => openPlaceInMaps(place.text));
+    label.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openPlaceInMaps(place.text);
+      }
+    });
 
     const actions = document.createElement('div');
     actions.className = 'item-actions';

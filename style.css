@@ -621,3 +621,13 @@ body {
   color: #6b7280;
   margin-top: 1px;
 }
+
+.place-map-link {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+
+.place-map-link:hover {
+  color: #4f46e5;
+}
