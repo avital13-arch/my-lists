@@ -536,6 +536,9 @@ window._initTrip = function () {
     if (!calendarDiv.hasAttribute('hidden')) renderCalendar();
   }
 
+  // Ensure modal starts hidden
+  clearModal.setAttribute('hidden', '');
+
   form.addEventListener('submit', handleSubmit);
   editBtn.addEventListener('click', showSetup);
   clearSetupBtn.addEventListener('click', openClearModal);
