@@ -1423,3 +1423,102 @@ body {
   background: linear-gradient(135deg, #d1d5db, #9ca3af);
   color: #6b7280;
 }
+
+/* ════════════ CLEAR ACTIVITIES MODAL ════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  width: min(460px, 90vw);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.modal-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-purple);
+  margin-bottom: 1.2rem;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.modal-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.modal-select {
+  padding: 0.6rem 0.8rem;
+  border: 1.5px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition-fast);
+}
+
+.modal-select:focus {
+  border-color: var(--color-purple);
+  box-shadow: 0 0 0 3px rgba(217, 70, 239, 0.15);
+}
+
+.modal-confirm-msg {
+  font-size: 0.88rem;
+  color: #dc2626;
+  font-weight: 600;
+  min-height: 1.2em;
+  margin-bottom: 1.2rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: flex-end;
+}
+
+.modal-cancel-btn {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #6b7280;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 10px;
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.modal-cancel-btn:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.trip-header-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-shrink: 0;
+}

@@ -32,7 +32,15 @@ window._initTrip = function () {
   const subtitleEl   = document.getElementById('trip-subtitle');
   const weatherErrEl = document.getElementById('trip-weather-error');
   const placesSection = document.getElementById('trip-places-section');
-  const editBtn      = document.getElementById('trip-edit-btn');
+  const editBtn        = document.getElementById('trip-edit-btn');
+  const clearSetupBtn  = document.getElementById('trip-clear-setup-btn');
+  const clearCalBtn    = document.getElementById('trip-clear-cal-btn');
+  const clearModal     = document.getElementById('trip-clear-modal');
+  const modalPlaceSel  = document.getElementById('modal-place-select');
+  const modalDaySel    = document.getElementById('modal-day-select');
+  const modalConfirmMsg = document.getElementById('modal-confirm-msg');
+  const modalClearBtn  = document.getElementById('modal-clear-btn');
+  const modalCancelBtn = document.getElementById('modal-cancel-btn');
 
   // WMO weather code → [emoji, description]
   const WMO = {
@@ -99,6 +107,11 @@ window._initTrip = function () {
     calendarDiv.setAttribute('hidden', '');
     errorEl.textContent = '';
     renderSetupForm();
+    if (trip && trip.places && trip.places.length > 0) {
+      clearSetupBtn.removeAttribute('hidden');
+    } else {
+      clearSetupBtn.setAttribute('hidden', '');
+    }
   }
 
   function showCalendar() {
@@ -466,8 +479,75 @@ window._initTrip = function () {
     }
   }
 
+  // ── Clear Activities Modal ─────────────────────
+  function openClearModal() {
+    if (!trip || !trip.places || trip.places.length === 0) return;
+    modalPlaceSel.innerHTML = '';
+    trip.places.forEach((place, idx) => {
+      const opt = document.createElement('option');
+      opt.value = place.id;
+      opt.textContent = place.city || `Place ${idx + 1}`;
+      modalPlaceSel.appendChild(opt);
+    });
+    populateDaysInModal(trip.places[0].id);
+    updateConfirmMsg();
+    clearModal.removeAttribute('hidden');
+  }
+
+  function closeClearModal() {
+    clearModal.setAttribute('hidden', '');
+  }
+
+  function populateDaysInModal(placeId) {
+    const place = trip.places.find(p => p.id === placeId);
+    modalDaySel.innerHTML = '<option value="all">All days</option>';
+    if (place && place.startDate && place.endDate) {
+      getDates(place.startDate, place.endDate).forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = fmtFull(d);
+        modalDaySel.appendChild(opt);
+      });
+    }
+  }
+
+  function updateConfirmMsg() {
+    const place = trip.places.find(p => p.id === modalPlaceSel.value);
+    const placeName = place ? (place.city || 'selected place') : 'selected place';
+    if (modalDaySel.value === 'all') {
+      modalConfirmMsg.textContent =
+        `This will delete all activities for ${placeName}.`;
+    } else {
+      modalConfirmMsg.textContent =
+        `This will delete all activities on ${fmtFull(modalDaySel.value)} in ${placeName}.`;
+    }
+  }
+
+  function clearActivities() {
+    const place = trip.places.find(p => p.id === modalPlaceSel.value);
+    if (!place) return;
+    if (modalDaySel.value === 'all') {
+      place.days = {};
+    } else {
+      if (place.days) place.days[modalDaySel.value] = [];
+    }
+    save();
+    closeClearModal();
+    if (!calendarDiv.hasAttribute('hidden')) renderCalendar();
+  }
+
   form.addEventListener('submit', handleSubmit);
   editBtn.addEventListener('click', showSetup);
+  clearSetupBtn.addEventListener('click', openClearModal);
+  clearCalBtn.addEventListener('click', openClearModal);
+  modalPlaceSel.addEventListener('change', () => {
+    populateDaysInModal(modalPlaceSel.value);
+    updateConfirmMsg();
+  });
+  modalDaySel.addEventListener('change', updateConfirmMsg);
+  modalClearBtn.addEventListener('click', clearActivities);
+  modalCancelBtn.addEventListener('click', closeClearModal);
+  clearModal.addEventListener('click', e => { if (e.target === clearModal) closeClearModal(); });
 
   if (trip && trip.places && trip.places.length > 0) showCalendar(); else showSetup();
 };

@@ -122,6 +122,7 @@
         
         <button type="button" id="trip-add-place-btn" class="add-place-btn">+ Add Place</button>
         <button type="submit" id="trip-submit-btn">Plan Trip →</button>
+        <button type="button" id="trip-clear-setup-btn" class="clear-btn" hidden>🗑️ Clear</button>
       </form>
       <p class="form-error" id="trip-error"></p>
     </div>
@@ -133,12 +134,39 @@
           <h3 id="trip-title"></h3>
           <p class="trip-subtitle" id="trip-subtitle"></p>
         </div>
-        <button class="clear-btn" id="trip-edit-btn">✏️ Edit trip</button>
+        <div class="trip-header-actions">
+          <button class="clear-btn" id="trip-edit-btn">✏️ Edit trip</button>
+          <button class="clear-btn" id="trip-clear-cal-btn">🗑️ Clear</button>
+        </div>
       </div>
       <p class="form-error" id="trip-weather-error"></p>
       <div id="trip-places-section"></div>
     </div>
   </section>
+
+  <!-- Clear Activities Modal -->
+  <div id="trip-clear-modal" class="modal-overlay" hidden>
+    <div class="modal-container">
+      <h3 class="modal-title">Clear Activities</h3>
+      <div class="modal-body">
+        <label class="modal-label">
+          Place
+          <select id="modal-place-select" class="modal-select"></select>
+        </label>
+        <label class="modal-label">
+          Day
+          <select id="modal-day-select" class="modal-select">
+            <option value="all">All days</option>
+          </select>
+        </label>
+      </div>
+      <p class="modal-confirm-msg" id="modal-confirm-msg"></p>
+      <div class="modal-actions">
+        <button class="modal-cancel-btn" id="modal-cancel-btn">Cancel</button>
+        <button class="clear-btn" id="modal-clear-btn">Clear</button>
+      </div>
+    </div>
+  </div>
 
 </div><!-- /.app -->
 
