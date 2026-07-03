@@ -1,0 +1,7 @@
+# Python environment
+venv/
+__pycache__/
+*.pyc
+
+# User data — keep local, don't publish
+data.json

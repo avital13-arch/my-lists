@@ -1,0 +1,574 @@
+/* ── Reset & base ─────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f0f2f5;
+  color: #1a1a2e;
+  min-height: 100vh;
+}
+
+/* ── App shell ────────────────────────────────── */
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+/* ── App banner ───────────────────────────────── */
+.app-banner {
+  text-align: center;
+  padding: 1.5rem 0 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.app-banner h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #1a1a2e;
+}
+
+/* ── Add bar ──────────────────────────────────── */
+.add-bar {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 520px;
+  margin: 0 auto 1.5rem;
+}
+
+.add-bar input {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+  background: #fff;
+}
+
+.add-bar input:focus {
+  border-color: #6366f1;
+}
+
+.add-bar button {
+  padding: 0.65rem 1.4rem;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.add-bar button:hover {
+  background: #4f46e5;
+}
+
+.add-bar button:active {
+  transform: scale(0.97);
+}
+
+/* ── Two-column layout ────────────────────────── */
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Column card ──────────────────────────────── */
+.column {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+}
+
+.column-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.column-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+  flex: 1;
+}
+
+#col-checked .column-header h2 {
+  color: #10b981;
+}
+
+.count {
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: #f3f4f6;
+  color: #6b7280;
+  border-radius: 20px;
+  padding: 0.15rem 0.55rem;
+}
+
+#col-checked .count {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+/* ── Clear-all button ─────────────────────────── */
+.clear-btn {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ef4444;
+  background: none;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.clear-btn:hover {
+  background: #fef2f2;
+}
+
+.clear-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ── Item list ────────────────────────────────── */
+.item-list {
+  list-style: none;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow-y: auto;
+}
+
+/* ── Item row ─────────────────────────────────── */
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  transition: background 0.15s, opacity 0.2s, transform 0.2s;
+  animation: slide-in 0.2s ease;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.item-row:hover {
+  background: #f3f4f6;
+}
+
+/* Checkbox */
+.item-row input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  accent-color: #6366f1;
+  cursor: pointer;
+}
+
+#list-checked .item-row input[type="checkbox"] {
+  accent-color: #10b981;
+}
+
+/* Label / edit input */
+.item-label {
+  flex: 1;
+  font-size: 0.95rem;
+  word-break: break-word;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 1px 3px;
+  outline: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+}
+
+.item-label:focus {
+  background: #ede9fe;
+  outline: 2px solid #6366f1;
+}
+
+/* Checked items get a strikethrough */
+#list-checked .item-label {
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
+/* Action buttons */
+.item-actions {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.item-row:hover .item-actions,
+.item-row:focus-within .item-actions {
+  opacity: 1;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.12s;
+  color: #6b7280;
+}
+
+.icon-btn:hover {
+  background: #e5e7eb;
+  color: #1a1a2e;
+}
+
+.icon-btn.delete:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* ── Empty states ─────────────────────────────── */
+.empty-state {
+  display: none;
+  font-size: 0.88rem;
+  color: #9ca3af;
+  text-align: center;
+  padding: 2rem 0;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state.visible {
+  display: flex;
+}
+
+/* ══════════════════════════════════════════════════
+   NEW SECTIONS
+   ══════════════════════════════════════════════════ */
+
+/* ── Page sections ─────────────────────────────── */
+.page-section {
+  margin-bottom: 3rem;
+}
+.page-section + .page-section {
+  border-top: 2px solid #e5e7eb;
+  padding-top: 2.5rem;
+}
+.section-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 1.25rem;
+}
+
+/* ── Visited / Opened column overrides ─────────── */
+#col-places-visited .column-header h2,
+#col-links-opened   .column-header h2 { color: #10b981; }
+
+#col-places-visited .count,
+#col-links-opened   .count {
+  background: #d1fae5;
+  color: #065f46;
+}
+#list-places-visited .item-row input[type="checkbox"] { accent-color: #10b981; }
+#list-places-visited .item-label {
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
+/* ── Links add-bar (3 inputs) ───────────────────── */
+.add-bar--link {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 700px;
+  margin: 0 auto 1.5rem;
+  flex-wrap: wrap;
+}
+.add-bar--link input {
+  padding: 0.65rem 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+  background: #fff;
+  min-width: 0;
+}
+.add-bar--link input:first-child  { flex: 1 1 120px; }
+.add-bar--link input:nth-child(2) { flex: 2 1 180px; }
+.add-bar--link input:focus { border-color: #6366f1; }
+.add-bar--link button {
+  padding: 0.65rem 1.4rem;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.add-bar--link button:hover { background: #4f46e5; }
+
+/* ── Link row ───────────────────────────────────── */
+.link-meta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 1px;
+}
+.link-label-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1a1a2e;
+}
+.link-url-text {
+  font-size: 0.78rem;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.icon-btn.open-link {
+  flex-shrink: 0;
+  color: #6366f1;
+  opacity: 1;
+}
+.icon-btn.open-link:hover { background: #ede9fe; }
+#list-links-opened .link-label-text {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+/* ── Link inline edit ───────────────────────────── */
+.link-edit-inputs {
+  display: flex;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
+}
+.edit-input {
+  padding: 0.3rem 0.5rem;
+  border: 1.5px solid #6366f1;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: #fff;
+  outline: none;
+  min-width: 0;
+}
+.link-edit-inputs .edit-input:first-child { flex: 1; }
+.link-edit-inputs .edit-input:last-child  { flex: 2; }
+
+/* ── Trip setup form ────────────────────────────── */
+.trip-setup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.trip-setup-form input[type="text"],
+.trip-setup-form input[type="date"] {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.15s;
+}
+.trip-setup-form input:focus { border-color: #6366f1; }
+.trip-date-row {
+  display: flex;
+  gap: 0.75rem;
+}
+.trip-date-row label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.trip-setup-form button[type="submit"] {
+  padding: 0.7rem;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.trip-setup-form button[type="submit"]:hover    { background: #4f46e5; }
+.trip-setup-form button[type="submit"]:disabled { background: #a5b4fc; cursor: default; }
+.form-error {
+  color: #dc2626;
+  font-size: 0.88rem;
+  text-align: center;
+  margin-top: 0.5rem;
+  min-height: 1.2em;
+}
+
+/* ── Trip calendar header ───────────────────────── */
+.trip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.trip-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 0.2rem;
+}
+.trip-subtitle { font-size: 0.88rem; color: #6b7280; }
+
+/* ── Trip days grid ─────────────────────────────── */
+#trip-days {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.trip-day {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  animation: slide-in 0.2s ease;
+}
+.trip-day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+.trip-day-date {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #374151;
+  flex: 1;
+}
+.weather-badge {
+  font-size: 0.8rem;
+  background: #fef9c3;
+  color: #854d0e;
+  border-radius: 20px;
+  padding: 0.2rem 0.6rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.weather-badge--unavailable {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+/* ── Activity list ──────────────────────────────── */
+.activity-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-height: 24px;
+}
+.activity-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 6px;
+  transition: background 0.12s;
+}
+.activity-row:hover { background: #f9fafb; }
+.activity-row span { flex: 1; }
+.activity-row .icon-btn { opacity: 0; transition: opacity 0.12s; }
+.activity-row:hover .icon-btn { opacity: 1; }
+
+/* ── Add activity bar ───────────────────────────── */
+.add-activity-bar {
+  display: flex;
+  gap: 0.4rem;
+}
+.add-activity-bar input {
+  flex: 1;
+  padding: 0.4rem 0.65rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  outline: none;
+  background: #f9fafb;
+  transition: border-color 0.15s, background 0.15s;
+}
+.add-activity-bar input:focus { border-color: #6366f1; background: #fff; }
+.add-activity-bar button {
+  padding: 0.4rem 0.85rem;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.add-activity-bar button:hover { background: #4f46e5; }

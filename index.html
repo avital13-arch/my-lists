@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Lists</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── Banner ─────────────────────────────────── -->
+  <div class="app-banner">
+    <h1>My Lists</h1>
+  </div>
+
+  <!-- ══ Section 1: Checklist ══════════════════════ -->
+  <section class="page-section">
+    <h2 class="section-title">📋 Checklist</h2>
+    <div class="add-bar">
+      <input type="text" id="new-item-input" placeholder="Add a new item…"
+             autocomplete="off" maxlength="200" />
+      <button id="add-btn">Add</button>
+    </div>
+    <div class="columns">
+      <section class="column" id="col-active">
+        <div class="column-header">
+          <h2>Items to Take</h2>
+          <span class="count" id="count-active">0</span>
+        </div>
+        <ul class="item-list" id="list-active"></ul>
+        <p class="empty-state" id="empty-active">No items yet — add one above.</p>
+      </section>
+      <section class="column" id="col-checked">
+        <div class="column-header">
+          <h2>Items Checked</h2>
+          <span class="count" id="count-checked">0</span>
+          <button class="clear-btn" id="clear-checked-btn">Clear all</button>
+        </div>
+        <ul class="item-list" id="list-checked"></ul>
+        <p class="empty-state" id="empty-checked">Nothing checked off yet.</p>
+      </section>
+    </div>
+  </section>
+
+  <!-- ══ Section 2: Places to Visit ════════════════ -->
+  <section class="page-section">
+    <h2 class="section-title">📍 Places to Visit</h2>
+    <div class="add-bar">
+      <input type="text" id="places-input" placeholder="Add a place…"
+             autocomplete="off" maxlength="200" />
+      <button id="places-add-btn">Add</button>
+    </div>
+    <div class="columns">
+      <section class="column" id="col-places-active">
+        <div class="column-header">
+          <h2>To Visit</h2>
+          <span class="count" id="count-places-active">0</span>
+        </div>
+        <ul class="item-list" id="list-places-active"></ul>
+        <p class="empty-state" id="empty-places-active">No places yet.</p>
+      </section>
+      <section class="column" id="col-places-visited">
+        <div class="column-header">
+          <h2>Visited ✓</h2>
+          <span class="count" id="count-places-visited">0</span>
+          <button class="clear-btn" id="clear-places-btn">Clear all</button>
+        </div>
+        <ul class="item-list" id="list-places-visited"></ul>
+        <p class="empty-state" id="empty-places-visited">Nothing visited yet.</p>
+      </section>
+    </div>
+  </section>
+
+  <!-- ══ Section 3: Links & Addresses ══════════════ -->
+  <section class="page-section">
+    <h2 class="section-title">🔗 Links &amp; Addresses</h2>
+    <div class="add-bar add-bar--link">
+      <input type="text" id="link-label-input" placeholder="Label (e.g. Hotel website)"
+             autocomplete="off" maxlength="200" />
+      <input type="text" id="link-url-input" placeholder="URL or address (e.g. Eiffel Tower Paris)"
+             autocomplete="off" maxlength="500" />
+      <button id="link-add-btn">Add</button>
+    </div>
+    <div class="columns">
+      <section class="column" id="col-links-active">
+        <div class="column-header">
+          <h2>To Open</h2>
+          <span class="count" id="count-links-active">0</span>
+        </div>
+        <ul class="item-list" id="list-links-active"></ul>
+        <p class="empty-state" id="empty-links-active">No links yet.</p>
+      </section>
+      <section class="column" id="col-links-opened">
+        <div class="column-header">
+          <h2>Opened ✓</h2>
+          <span class="count" id="count-links-opened">0</span>
+          <button class="clear-btn" id="clear-links-btn">Clear all</button>
+        </div>
+        <ul class="item-list" id="list-links-opened"></ul>
+        <p class="empty-state" id="empty-links-opened">Nothing opened yet.</p>
+      </section>
+    </div>
+  </section>
+
+  <!-- ══ Section 4: Trip Planner ═══════════════════ -->
+  <section class="page-section">
+    <h2 class="section-title">🗺️ Trip Planner</h2>
+
+    <!-- Setup form (shown when no active trip) -->
+    <div id="trip-setup">
+      <form id="trip-form" class="trip-setup-form">
+        <input type="text" id="trip-name" placeholder="Trip name (e.g. Summer in Paris)"
+               autocomplete="off" maxlength="100" />
+        <input type="text" id="trip-city" placeholder="City name (for weather forecast)"
+               autocomplete="off" maxlength="100" />
+        <div class="trip-date-row">
+          <label>From <input type="date" id="trip-start" /></label>
+          <label>To   <input type="date" id="trip-end"   /></label>
+        </div>
+        <button type="submit" id="trip-submit-btn">Plan Trip →</button>
+      </form>
+      <p class="form-error" id="trip-error"></p>
+    </div>
+
+    <!-- Calendar (shown when trip is active) -->
+    <div id="trip-calendar" hidden>
+      <div class="trip-header">
+        <div>
+          <h3 id="trip-title"></h3>
+          <p class="trip-subtitle" id="trip-subtitle"></p>
+        </div>
+        <button class="clear-btn" id="trip-edit-btn">✏️ Edit trip</button>
+      </div>
+      <p class="form-error" id="trip-weather-error"></p>
+      <div id="trip-days"></div>
+    </div>
+  </section>
+
+</div><!-- /.app -->
+
+<script src="utils.js"></script>
+<script src="app.js"></script>
+<script src="places-links.js"></script>
+<script src="trip.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    window._initChecklist();
+    window._initPlaces();
+    window._initLinks();
+    window._initTrip();
+  });
+</script>
+
+</body>
+</html>
