@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Lists</title>
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=6" />
 </head>
 <body>
 
@@ -113,14 +113,14 @@
     <!-- Setup form (shown when no active trip) -->
     <div id="trip-setup">
       <form id="trip-form" class="trip-setup-form">
-        <input type="text" id="trip-name" placeholder="Trip name (e.g. Summer in Paris)"
+        <input type="text" id="trip-name" placeholder="Trip name (e.g. Summer in Europe)"
                autocomplete="off" maxlength="100" />
-        <input type="text" id="trip-city" placeholder="City name (for weather forecast)"
-               autocomplete="off" maxlength="100" />
-        <div class="trip-date-row">
-          <label>From <input type="date" id="trip-start" /></label>
-          <label>To   <input type="date" id="trip-end"   /></label>
+        
+        <div id="places-container" class="places-container">
+          <!-- Places will be dynamically added here -->
         </div>
+        
+        <button type="button" id="trip-add-place-btn" class="add-place-btn">+ Add Place</button>
         <button type="submit" id="trip-submit-btn">Plan Trip →</button>
       </form>
       <p class="form-error" id="trip-error"></p>
@@ -136,16 +136,16 @@
         <button class="clear-btn" id="trip-edit-btn">✏️ Edit trip</button>
       </div>
       <p class="form-error" id="trip-weather-error"></p>
-      <div id="trip-days"></div>
+      <div id="trip-places-section"></div>
     </div>
   </section>
 
 </div><!-- /.app -->
 
-<script src="utils.js?v=5"></script>
-<script src="app.js?v=5"></script>
-<script src="places-links.js?v=5"></script>
-<script src="trip.js?v=5"></script>
+<script src="utils.js?v=6"></script>
+<script src="app.js?v=6"></script>
+<script src="places-links.js?v=6"></script>
+<script src="trip.js?v=6"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     window._initChecklist();
