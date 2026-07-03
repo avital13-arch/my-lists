@@ -67,9 +67,12 @@ window._initPlaces = function () {
 
   // ── Autocomplete (Photon / OpenStreetMap) ──────
   const wrapper  = input.closest('.autocomplete-wrapper');
-  const dropdown = document.createElement('div');
-  dropdown.className = 'autocomplete-dropdown';
-  wrapper.appendChild(dropdown);
+  if (!wrapper) { console.warn('autocomplete-wrapper not found'); }
+  const dropdown = wrapper ? document.createElement('div') : null;
+  if (dropdown) {
+    dropdown.className = 'autocomplete-dropdown';
+    wrapper.appendChild(dropdown);
+  }
 
   let debounceTimer = null;
   let abortCtrl     = null;
@@ -77,6 +80,7 @@ window._initPlaces = function () {
   let suggestions   = [];
 
   function closeDrop() {
+    if (!dropdown) return;
     dropdown.classList.remove('open');
     activeIdx = -1;
   }
@@ -92,6 +96,7 @@ window._initPlaces = function () {
   }
 
   function renderDrop() {
+    if (!dropdown) return;
     dropdown.innerHTML = '';
     if (!suggestions.length) { closeDrop(); return; }
     suggestions.forEach(s => {
@@ -135,6 +140,7 @@ window._initPlaces = function () {
   }
 
   input.addEventListener('input', () => {
+    if (!dropdown) return;
     clearTimeout(debounceTimer);
     const q = input.value.trim();
     if (q.length < 2) { closeDrop(); return; }
@@ -143,7 +149,7 @@ window._initPlaces = function () {
 
   // Keyboard navigation — registered BEFORE the addPlace keydown handler
   input.addEventListener('keydown', e => {
-    if (!dropdown.classList.contains('open')) return;
+    if (!dropdown || !dropdown.classList.contains('open')) return;
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setActive(Math.min(activeIdx + 1, suggestions.length - 1));
