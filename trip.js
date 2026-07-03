@@ -492,10 +492,18 @@ window._initTrip = function () {
     populateDaysInModal(trip.places[0].id);
     updateConfirmMsg();
     clearModal.removeAttribute('hidden');
+    clearModal.style.display = 'flex';
+    clearModal.style.visibility = 'visible';
+    clearModal.style.pointerEvents = 'auto';
+    clearModal.style.opacity = '1';
   }
 
   function closeClearModal() {
     clearModal.setAttribute('hidden', '');
+    clearModal.style.display = 'none';
+    clearModal.style.visibility = 'hidden';
+    clearModal.style.pointerEvents = 'none';
+    clearModal.style.opacity = '0';
   }
 
   function populateDaysInModal(placeId) {
@@ -538,6 +546,10 @@ window._initTrip = function () {
 
   // Ensure modal starts hidden
   clearModal.setAttribute('hidden', '');
+  clearModal.style.display = 'none';
+  clearModal.style.visibility = 'hidden';
+  clearModal.style.pointerEvents = 'none';
+  clearModal.style.opacity = '0';
 
   form.addEventListener('submit', handleSubmit);
   editBtn.addEventListener('click', showSetup);
