@@ -524,16 +524,31 @@ window._initTrip = function () {
   }
 
   function clearActivities() {
+    console.log('clearActivities called');
     const place = trip.places.find(p => p.id === modalPlaceSel.value);
-    if (!place) return;
+    console.log('Selected place:', place);
+    console.log('Modal day value:', modalDaySel.value);
+    if (!place) {
+      console.log('Place not found!');
+      return;
+    }
     if (modalDaySel.value === 'all') {
+      console.log('Clearing all days for', place.city);
       place.days = {};
     } else {
+      console.log('Clearing day:', modalDaySel.value);
       if (place.days) place.days[modalDaySel.value] = [];
     }
+    console.log('After clearing, place.days:', place.days);
     save();
     closeClearModal();
-    if (!calendarDiv.hasAttribute('hidden')) renderCalendar();
+    if (!calendarDiv.hasAttribute('hidden')) {
+      console.log('Rendering calendar');
+      renderCalendar();
+    } else {
+      console.log('Rendering setup');
+      showSetup();
+    }
   }
 
   // Ensure modal starts hidden
