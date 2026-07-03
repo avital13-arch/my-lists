@@ -49,12 +49,19 @@ window._initTrip = function () {
   function save() { localStorage.setItem('checklist-trip', JSON.stringify(trip)); }
 
   // ── Date helpers ───────────────────────────────
+  function localDateStr(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
   function getDates(start, end) {
     const dates = [];
     let cur  = new Date(start + 'T00:00:00');
     const last = new Date(end   + 'T00:00:00');
     while (cur <= last) {
-      dates.push(cur.toISOString().slice(0, 10));
+      dates.push(localDateStr(cur));
       cur.setDate(cur.getDate() + 1);
     }
     return dates;
@@ -188,8 +195,8 @@ window._initTrip = function () {
       const lat = results[0].latitude;
       const lon = results[0].longitude;
 
-      const today    = new Date().toISOString().slice(0, 10);
-      const maxDate  = new Date(Date.now() + 6 * 86400000).toISOString().slice(0, 10);
+      const today    = localDateStr(new Date());
+      const maxDate  = localDateStr(new Date(Date.now() + 6 * 86400000));
       const fetchStart = startDate > today   ? startDate : today;
       const fetchEnd   = endDate   < maxDate ? endDate   : maxDate;
 
