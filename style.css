@@ -308,6 +308,16 @@ body {
   cursor: default;
 }
 
+.delete-trip-btn {
+  background: linear-gradient(135deg, #991b1b, #7f1d1d) !important;
+  box-shadow: 0 3px 10px rgba(127, 29, 29, 0.5) !important;
+}
+
+.delete-trip-btn:hover {
+  background: linear-gradient(135deg, #7f1d1d, #5f0f0f) !important;
+  box-shadow: 0 6px 18px rgba(127, 29, 29, 0.6) !important;
+}
+
 /* ════════════ ITEM LIST ════════════ */
 .item-list {
   list-style: none;

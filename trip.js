@@ -33,6 +33,7 @@ window._initTrip = function () {
   const weatherErrEl = document.getElementById('trip-weather-error');
   const placesSection = document.getElementById('trip-places-section');
   const editBtn        = document.getElementById('trip-edit-btn');
+  const deleteBtn      = document.getElementById('trip-delete-btn');
   const clearSetupBtn  = document.getElementById('trip-clear-setup-btn');
   const clearCalBtn    = document.getElementById('trip-clear-cal-btn');
   const clearModal     = document.getElementById('trip-clear-modal');
@@ -524,29 +525,18 @@ window._initTrip = function () {
   }
 
   function clearActivities() {
-    console.log('clearActivities called');
     const place = trip.places.find(p => p.id === modalPlaceSel.value);
-    console.log('Selected place:', place);
-    console.log('Modal day value:', modalDaySel.value);
-    if (!place) {
-      console.log('Place not found!');
-      return;
-    }
+    if (!place) return;
     if (modalDaySel.value === 'all') {
-      console.log('Clearing all days for', place.city);
       place.days = {};
     } else {
-      console.log('Clearing day:', modalDaySel.value);
       if (place.days) place.days[modalDaySel.value] = [];
     }
-    console.log('After clearing, place.days:', place.days);
     save();
     closeClearModal();
     if (!calendarDiv.hasAttribute('hidden')) {
-      console.log('Rendering calendar');
       renderCalendar();
     } else {
-      console.log('Rendering setup');
       showSetup();
     }
   }
@@ -554,8 +544,17 @@ window._initTrip = function () {
   // Ensure modal starts hidden
   clearModal.setAttribute('hidden', '');
 
+  function deleteTrip() {
+    if (confirm('Are you sure you want to delete this entire trip? This action cannot be undone.')) {
+      trip = null;
+      localStorage.removeItem('checklist-trip');
+      showSetup();
+    }
+  }
+
   form.addEventListener('submit', handleSubmit);
   editBtn.addEventListener('click', showSetup);
+  deleteBtn.addEventListener('click', deleteTrip);
   clearSetupBtn.addEventListener('click', openClearModal);
   clearCalBtn.addEventListener('click', openClearModal);
   modalPlaceSel.addEventListener('change', () => {
