@@ -1,326 +1,264 @@
-// ── Places Module ─────────────────────────────────
+// ── Merged Places + Links Module ─────────────────
 window._initPlaces = function () {
   'use strict';
-  let places = JSON.parse(localStorage.getItem('checklist-places') || '[]');
-  function save() { localStorage.setItem('checklist-places', JSON.stringify(places)); }
 
-  const listActive   = document.getElementById('list-places-active');
-  const listVisited  = document.getElementById('list-places-visited');
-  const countActive  = document.getElementById('count-places-active');
-  const countVisited = document.getElementById('count-places-visited');
-  const emptyActive  = document.getElementById('empty-places-active');
-  const emptyVisited = document.getElementById('empty-places-visited');
-  const input        = document.getElementById('places-input');
-  const addBtn       = document.getElementById('places-add-btn');
-  const clearBtn     = document.getElementById('clear-places-btn');
+  const STORAGE_KEY = 'checklist-places-merged';
+  const LEGACY_PLACES_KEY = 'checklist-places';
+  const LEGACY_LINKS_KEY = 'checklist-links';
 
-  function render() {
-    const active  = places.filter(p => !p.visited);
-    const visited = places.filter(p =>  p.visited);
-    listActive.innerHTML  = '';
-    listVisited.innerHTML = '';
-    active.forEach(p  => listActive.appendChild(createRow(p)));
-    visited.forEach(p => listVisited.appendChild(createRow(p)));
-    countActive.textContent  = active.length;
-    countVisited.textContent = visited.length;
-    emptyActive.classList.toggle('visible',  active.length  === 0);
-    emptyVisited.classList.toggle('visible', visited.length === 0);
-    clearBtn.disabled = visited.length === 0;
+  function normalizeItem(raw) {
+    const name = String(raw?.name || '').trim();
+    const value = String(raw?.value || '').trim();
+    return {
+      id: raw?.id || crypto.randomUUID(),
+      name,
+      value,
+      done: !!raw?.done
+    };
   }
 
-  function openPlaceInMaps(placeText) {
-    const query = encodeURIComponent((placeText || '').trim());
-    if (!query) return;
+  function migrateLegacyData() {
+    const oldPlaces = JSON.parse(localStorage.getItem(LEGACY_PLACES_KEY) || '[]');
+    const oldLinks = JSON.parse(localStorage.getItem(LEGACY_LINKS_KEY) || '[]');
 
+    const fromPlaces = Array.isArray(oldPlaces)
+      ? oldPlaces.map(p => normalizeItem({
+          id: p?.id,
+          name: p?.text,
+          value: p?.text,
+          done: !!p?.visited
+        }))
+      : [];
+
+    const fromLinks = Array.isArray(oldLinks)
+      ? oldLinks.map(l => normalizeItem({
+          id: l?.id,
+          name: l?.label,
+          value: l?.url,
+          done: !!l?.opened
+        }))
+      : [];
+
+    const merged = [...fromPlaces, ...fromLinks].filter(i => i.name || i.value);
+    const byKey = new Map();
+
+    merged.forEach(item => {
+      const key = `${item.name.toLowerCase()}|${item.value.toLowerCase()}`;
+      if (!byKey.has(key)) {
+        byKey.set(key, item);
+        return;
+      }
+      const existing = byKey.get(key);
+      existing.done = existing.done || item.done;
+    });
+
+    return Array.from(byKey.values());
+  }
+
+  function loadItems() {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    if (Array.isArray(saved) && saved.length > 0) {
+      return saved.map(normalizeItem).filter(i => i.name || i.value);
+    }
+
+    const migrated = migrateLegacyData();
+    if (migrated.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+      return migrated;
+    }
+
+    if (Array.isArray(saved)) return [];
+    return [];
+  }
+
+  let items = loadItems();
+  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
+
+  const listActive = document.getElementById('list-places-active');
+  const listDone = document.getElementById('list-places-visited');
+  const countActive = document.getElementById('count-places-active');
+  const countDone = document.getElementById('count-places-visited');
+  const emptyActive = document.getElementById('empty-places-active');
+  const emptyDone = document.getElementById('empty-places-visited');
+  const nameInput = document.getElementById('places-input');
+  const valueInput = document.getElementById('places-value-input');
+  const addBtn = document.getElementById('places-add-btn');
+  const clearBtn = document.getElementById('clear-places-btn');
+
+  function openTarget(item) {
+    const raw = (item.value || item.name || '').trim();
+    if (!raw) return;
+
+    if (/^https?:\/\//i.test(raw)) {
+      window.open(raw, '_blank', 'noopener');
+      return;
+    }
+
+    const query = encodeURIComponent(raw);
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const url = isIOS
+    const mapUrl = isIOS
       ? `https://maps.apple.com/?q=${query}`
       : `https://www.google.com/maps/search/?api=1&query=${query}`;
 
-    window.open(url, '_blank', 'noopener');
+    window.open(mapUrl, '_blank', 'noopener');
   }
-
-  function createRow(place) {
-    const li = document.createElement('li');
-    li.className = 'item-row';
-    li.dataset.id = place.id;
-
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = place.visited;
-    checkbox.addEventListener('change', () => { place.visited = !place.visited; save(); render(); });
-
-    const label = document.createElement('span');
-    label.className = 'item-label place-map-link';
-    label.textContent = place.text;
-    label.setAttribute('tabindex', '0');
-    label.setAttribute('role', 'link');
-    label.setAttribute('title', 'Open in Maps');
-    const onEdit = () => inlineEdit(label, place, () => { save(); render(); });
-    label.addEventListener('click', () => openPlaceInMaps(place.text));
-    label.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        openPlaceInMaps(place.text);
-      }
-    });
-
-    const actions = document.createElement('div');
-    actions.className = 'item-actions';
-    actions.appendChild(iconBtn('✏️', 'Edit',   'edit',   onEdit));
-    actions.appendChild(iconBtn('🗑️', 'Delete', 'delete', () => {
-      places = places.filter(p => p.id !== place.id); save(); render();
-    }));
-
-    li.append(checkbox, label, actions);
-    return li;
-  }
-
-  function addPlace() {
-    const text = input.value.trim();
-    if (!text) { input.focus(); return; }
-    places.push({ id: crypto.randomUUID(), text, visited: false });
-    save(); render();
-    input.value = ''; input.focus();
-  }
-
-  // ── Autocomplete (Photon / OpenStreetMap) ──────
-  const wrapper  = input.closest('.autocomplete-wrapper');
-  if (!wrapper) { console.warn('autocomplete-wrapper not found'); }
-  const dropdown = wrapper ? document.createElement('div') : null;
-  if (dropdown) {
-    dropdown.className = 'autocomplete-dropdown';
-    wrapper.appendChild(dropdown);
-  }
-
-  let debounceTimer = null;
-  let abortCtrl     = null;
-  let activeIdx     = -1;
-  let suggestions   = [];
-
-  function closeDrop() {
-    if (!dropdown) return;
-    dropdown.classList.remove('open');
-    activeIdx = -1;
-  }
-
-  function setActive(idx) {
-    const items = dropdown.querySelectorAll('.autocomplete-item');
-    items.forEach(el => el.classList.remove('ac-active'));
-    if (idx >= 0 && idx < items.length) {
-      items[idx].classList.add('ac-active');
-      items[idx].scrollIntoView({ block: 'nearest' });
-    }
-    activeIdx = (idx >= 0 && idx < items.length) ? idx : -1;
-  }
-
-  function renderDrop() {
-    if (!dropdown) return;
-    dropdown.innerHTML = '';
-    if (!suggestions.length) { closeDrop(); return; }
-    suggestions.forEach(s => {
-      const item = document.createElement('div');
-      item.className = 'autocomplete-item';
-      item.innerHTML = `<div class="autocomplete-item-name">${s.label}</div>` +
-                       (s.sub ? `<div class="autocomplete-item-sub">${s.sub}</div>` : '');
-      item.addEventListener('mousedown', e => {
-        e.preventDefault();   // keep focus on input
-        input.value = s.label;
-        closeDrop();
-        input.focus();
-      });
-      dropdown.appendChild(item);
-    });
-    dropdown.classList.add('open');
-    activeIdx = -1;
-  }
-
-  async function fetchSuggestions(query) {
-    if (abortCtrl) abortCtrl.abort();
-    abortCtrl = new AbortController();
-    try {
-      const res  = await fetch(
-        `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=6&lang=en`,
-        { signal: abortCtrl.signal }
-      );
-      const data = await res.json();
-      suggestions = (data.features || []).map(f => {
-        const p    = f.properties;
-        const name = p.name || p.city || '';
-        const sub  = [p.city, p.state, p.country]
-          .filter(x => x && x !== name)
-          .slice(0, 2).join(', ');
-        return { label: name, sub };
-      }).filter(s => s.label);
-      renderDrop();
-    } catch (err) {
-      if (err.name !== 'AbortError') closeDrop();
-    }
-  }
-
-  input.addEventListener('input', () => {
-    if (!dropdown) return;
-    clearTimeout(debounceTimer);
-    const q = input.value.trim();
-    if (q.length < 2) { closeDrop(); return; }
-    debounceTimer = setTimeout(() => fetchSuggestions(q), 300);
-  });
-
-  // Keyboard navigation — registered BEFORE the addPlace keydown handler
-  input.addEventListener('keydown', e => {
-    if (!dropdown || !dropdown.classList.contains('open')) return;
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setActive(Math.min(activeIdx + 1, suggestions.length - 1));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setActive(Math.max(activeIdx - 1, -1));
-    } else if (e.key === 'Enter' && activeIdx >= 0) {
-      e.preventDefault();
-      e.stopImmediatePropagation();   // block addPlace listener below
-      input.value = suggestions[activeIdx].label;
-      closeDrop();
-    } else if (e.key === 'Escape') {
-      closeDrop();
-    }
-  });
-
-  input.addEventListener('blur', () => setTimeout(closeDrop, 150));
-  // ───────────────────────────────────────────────
-
-  addBtn.addEventListener('click', addPlace);
-  input.addEventListener('keydown', e => { if (e.key === 'Enter') addPlace(); });
-  clearBtn.addEventListener('click', () => { places = places.filter(p => !p.visited); save(); render(); });
-
-  render();
-};
-
-
-// ── Links Module ──────────────────────────────────
-window._initLinks = function () {
-  'use strict';
-  let links = JSON.parse(localStorage.getItem('checklist-links') || '[]');
-  function save() { localStorage.setItem('checklist-links', JSON.stringify(links)); }
-
-  const listActive  = document.getElementById('list-links-active');
-  const listOpened  = document.getElementById('list-links-opened');
-  const countActive = document.getElementById('count-links-active');
-  const countOpened = document.getElementById('count-links-opened');
-  const emptyActive = document.getElementById('empty-links-active');
-  const emptyOpened = document.getElementById('empty-links-opened');
-  const labelInput  = document.getElementById('link-label-input');
-  const urlInput    = document.getElementById('link-url-input');
-  const addBtn      = document.getElementById('link-add-btn');
-  const clearBtn    = document.getElementById('clear-links-btn');
 
   function render() {
-    const active = links.filter(l => !l.opened);
-    const opened = links.filter(l =>  l.opened);
+    const active = items.filter(i => !i.done);
+    const done = items.filter(i => i.done);
+
     listActive.innerHTML = '';
-    listOpened.innerHTML = '';
-    active.forEach(l => listActive.appendChild(createRow(l)));
-    opened.forEach(l => listOpened.appendChild(createRow(l)));
-    countActive.textContent = active.length;
-    countOpened.textContent = opened.length;
+    listDone.innerHTML = '';
+
+    active.forEach(i => listActive.appendChild(createRow(i)));
+    done.forEach(i => listDone.appendChild(createRow(i)));
+
+    countActive.textContent = String(active.length);
+    countDone.textContent = String(done.length);
     emptyActive.classList.toggle('visible', active.length === 0);
-    emptyOpened.classList.toggle('visible', opened.length === 0);
-    clearBtn.disabled = opened.length === 0;
+    emptyDone.classList.toggle('visible', done.length === 0);
+    clearBtn.disabled = done.length === 0;
   }
 
-  function createRow(link) {
+  function startEdit(li, item) {
+    li.innerHTML = '';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'link-edit-inputs';
+
+    const nameIn = document.createElement('input');
+    nameIn.type = 'text';
+    nameIn.value = item.name;
+    nameIn.className = 'edit-input';
+    nameIn.placeholder = 'Name';
+
+    const valueIn = document.createElement('input');
+    valueIn.type = 'text';
+    valueIn.value = item.value;
+    valueIn.className = 'edit-input';
+    valueIn.placeholder = 'Address or URL';
+
+    wrapper.append(nameIn, valueIn);
+
+    function commit() {
+      const nextName = nameIn.value.trim();
+      const nextValue = valueIn.value.trim();
+      if (!nextName && !nextValue) {
+        render();
+        return;
+      }
+      item.name = nextName || nextValue;
+      item.value = nextValue || nextName;
+      save();
+      render();
+    }
+
+    const saveBtn = iconBtn('✓', 'Save', '', commit);
+    const cancelBtn = iconBtn('✕', 'Cancel', 'delete', render);
+
+    [nameIn, valueIn].forEach(inp => inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') commit();
+      if (e.key === 'Escape') render();
+    }));
+
+    li.append(wrapper, saveBtn, cancelBtn);
+    nameIn.focus();
+  }
+
+  function createRow(item) {
     const li = document.createElement('li');
     li.className = 'item-row';
-    li.dataset.id = link.id;
+    li.dataset.id = item.id;
 
     const openBtn = document.createElement('button');
     openBtn.className = 'icon-btn open-link';
     openBtn.title = 'Open';
-    openBtn.setAttribute('aria-label', 'Open link');
+    openBtn.setAttribute('aria-label', 'Open address or link');
     openBtn.textContent = '🔗';
-    openBtn.addEventListener('click', () => openUrl(link.url));
+    openBtn.addEventListener('click', () => openTarget(item));
 
     const meta = document.createElement('div');
     meta.className = 'link-meta';
-    const labelEl = document.createElement('span');
-    labelEl.className = 'link-label-text';
-    labelEl.textContent = link.label;
-    const urlEl = document.createElement('span');
-    urlEl.className = 'link-url-text';
-    urlEl.textContent = link.url;
-    meta.append(labelEl, urlEl);
+
+    const nameEl = document.createElement('span');
+    nameEl.className = 'link-label-text place-map-link';
+    nameEl.textContent = item.name || item.value;
+    nameEl.setAttribute('tabindex', '0');
+    nameEl.setAttribute('role', 'link');
+    nameEl.setAttribute('title', 'Open');
+    nameEl.addEventListener('click', () => openTarget(item));
+    nameEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openTarget(item);
+      }
+    });
+
+    const valueEl = document.createElement('span');
+    valueEl.className = 'link-url-text';
+    valueEl.textContent = item.value || item.name;
+
+    meta.append(nameEl, valueEl);
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    checkbox.checked = link.opened;
-    checkbox.addEventListener('change', () => { link.opened = !link.opened; save(); render(); });
+    checkbox.checked = item.done;
+    checkbox.addEventListener('change', () => {
+      item.done = !item.done;
+      save();
+      render();
+    });
 
     const actions = document.createElement('div');
     actions.className = 'item-actions';
-    actions.appendChild(iconBtn('✏️', 'Edit',   'edit',   () => startLinkEdit(li, link)));
+    actions.appendChild(iconBtn('✏️', 'Edit', 'edit', () => startEdit(li, item)));
     actions.appendChild(iconBtn('🗑️', 'Delete', 'delete', () => {
-      links = links.filter(l => l.id !== link.id); save(); render();
+      items = items.filter(i => i.id !== item.id);
+      save();
+      render();
     }));
 
     li.append(openBtn, meta, checkbox, actions);
     return li;
   }
 
-  function startLinkEdit(li, link) {
-    li.innerHTML = '';
+  function addItem() {
+    const name = (nameInput.value || '').trim();
+    const value = (valueInput.value || '').trim();
 
-    const wrapper = document.createElement('div');
-    wrapper.className = 'link-edit-inputs';
-
-    const lIn = document.createElement('input');
-    lIn.type = 'text'; lIn.value = link.label;
-    lIn.className = 'edit-input'; lIn.placeholder = 'Label';
-
-    const uIn = document.createElement('input');
-    uIn.type = 'text'; uIn.value = link.url;
-    uIn.className = 'edit-input'; uIn.placeholder = 'URL or address';
-
-    wrapper.append(lIn, uIn);
-
-    function commit() {
-      const newLabel = lIn.value.trim();
-      const newUrl   = uIn.value.trim();
-      if (newLabel && newUrl) { link.label = newLabel; link.url = newUrl; save(); }
-      render();
+    if (!name && !value) {
+      nameInput.focus();
+      return;
     }
 
-    const saveBtn   = iconBtn('✓', 'Save',   '',       commit);
-    const cancelBtn = iconBtn('✕', 'Cancel', 'delete', render);
+    const finalName = name || value;
+    const finalValue = value || name;
 
-    [lIn, uIn].forEach(inp => inp.addEventListener('keydown', e => {
-      if (e.key === 'Enter')  commit();
-      if (e.key === 'Escape') render();
-    }));
+    items.push({
+      id: crypto.randomUUID(),
+      name: finalName,
+      value: finalValue,
+      done: false
+    });
 
-    li.append(wrapper, saveBtn, cancelBtn);
-    lIn.focus();
+    save();
+    render();
+    nameInput.value = '';
+    valueInput.value = '';
+    nameInput.focus();
   }
 
-  function openUrl(url) {
-    const finalUrl = /^https?:\/\//i.test(url)
-      ? url
-      : `https://maps.google.com/?q=${encodeURIComponent(url)}`;
-    window.open(finalUrl, '_blank', 'noopener');
-  }
-
-  function addLink() {
-    const label = labelInput.value.trim();
-    const url   = urlInput.value.trim();
-    if (!label) { labelInput.focus(); return; }
-    if (!url)   { urlInput.focus();   return; }
-    links.push({ id: crypto.randomUUID(), label, url, opened: false });
-    save(); render();
-    labelInput.value = ''; urlInput.value = '';
-    labelInput.focus();
-  }
-
-  addBtn.addEventListener('click', addLink);
-  urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') addLink(); });
-  clearBtn.addEventListener('click', () => { links = links.filter(l => !l.opened); save(); render(); });
+  addBtn.addEventListener('click', addItem);
+  valueInput.addEventListener('keydown', e => { if (e.key === 'Enter') addItem(); });
+  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') addItem(); });
+  clearBtn.addEventListener('click', () => {
+    items = items.filter(i => !i.done);
+    save();
+    render();
+  });
 
   render();
 };
+
+// Backward compatibility for older bootstraps.
+window._initLinks = function () {};

@@ -16,8 +16,18 @@
   </div>
 
   <!-- ══ Section 1: Checklist ══════════════════════ -->
-  <section class="page-section">
+  <section class="page-section" id="checklist">
     <h2 class="section-title">📋 Checklist</h2>
+    <div class="person-bar">
+      <label for="checklist-person-select">Person</label>
+      <select id="checklist-person-select" aria-label="Select person checklist"></select>
+      <input type="text" id="checklist-person-name-input" placeholder="New person name"
+             autocomplete="off" maxlength="80" />
+            <button id="checklist-person-clear-name-btn" type="button" aria-label="Clear person name">✕</button>
+      <button id="checklist-person-add-btn" type="button" disabled>+ Person</button>
+      <button id="checklist-person-delete-btn" class="clear-btn" type="button">Delete Person</button>
+    </div>
+    <p id="checklist-person-feedback" class="person-feedback" aria-live="polite"></p>
     <div class="add-bar">
       <input type="text" id="new-item-input" placeholder="Add a new item…"
              autocomplete="off" maxlength="200" />
@@ -45,13 +55,13 @@
   </section>
 
   <!-- ══ Section 2: Places to Visit ════════════════ -->
-  <section class="page-section">
-    <h2 class="section-title">📍 Places to Visit</h2>
-    <div class="add-bar">
-      <div class="autocomplete-wrapper">
-        <input type="text" id="places-input" placeholder="Add a place…"
-               autocomplete="off" maxlength="200" />
-      </div>
+  <section class="page-section" id="places">
+    <h2 class="section-title">📍 Places, Links &amp; Addresses</h2>
+    <div class="add-bar add-bar--link">
+      <input type="text" id="places-input" placeholder="Name (e.g. Eiffel Tower, Hotel Website)"
+             autocomplete="off" maxlength="200" />
+      <input type="text" id="places-value-input" placeholder="Address or URL"
+             autocomplete="off" maxlength="500" />
       <button id="places-add-btn">Add</button>
     </div>
     <div class="columns">
@@ -65,49 +75,18 @@
       </section>
       <section class="column" id="col-places-visited">
         <div class="column-header">
-          <h2>Visited ✓</h2>
+          <h2>Done ✓</h2>
           <span class="count" id="count-places-visited">0</span>
           <button class="clear-btn" id="clear-places-btn">Clear all</button>
         </div>
         <ul class="item-list" id="list-places-visited"></ul>
-        <p class="empty-state" id="empty-places-visited">Nothing visited yet.</p>
+        <p class="empty-state" id="empty-places-visited">Nothing completed yet.</p>
       </section>
     </div>
   </section>
 
-  <!-- ══ Section 3: Links & Addresses ══════════════ -->
-  <section class="page-section">
-    <h2 class="section-title">🔗 Links &amp; Addresses</h2>
-    <div class="add-bar add-bar--link">
-      <input type="text" id="link-label-input" placeholder="Label (e.g. Hotel website)"
-             autocomplete="off" maxlength="200" />
-      <input type="text" id="link-url-input" placeholder="URL or address (e.g. Eiffel Tower Paris)"
-             autocomplete="off" maxlength="500" />
-      <button id="link-add-btn">Add</button>
-    </div>
-    <div class="columns">
-      <section class="column" id="col-links-active">
-        <div class="column-header">
-          <h2>To Open</h2>
-          <span class="count" id="count-links-active">0</span>
-        </div>
-        <ul class="item-list" id="list-links-active"></ul>
-        <p class="empty-state" id="empty-links-active">No links yet.</p>
-      </section>
-      <section class="column" id="col-links-opened">
-        <div class="column-header">
-          <h2>Opened ✓</h2>
-          <span class="count" id="count-links-opened">0</span>
-          <button class="clear-btn" id="clear-links-btn">Clear all</button>
-        </div>
-        <ul class="item-list" id="list-links-opened"></ul>
-        <p class="empty-state" id="empty-links-opened">Nothing opened yet.</p>
-      </section>
-    </div>
-  </section>
-
-  <!-- ══ Section 4: Trip Planner ═══════════════════ -->
-  <section class="page-section">
+  <!-- ══ Section 3: Trip Planner ═══════════════════ -->
+  <section class="page-section" id="trip">
     <h2 class="section-title">🗺️ Trip Planner</h2>
 
     <!-- Setup form (shown when no active trip) -->
@@ -179,7 +158,6 @@
   document.addEventListener('DOMContentLoaded', () => {
     window._initChecklist();
     window._initPlaces();
-    window._initLinks();
     window._initTrip();
   });
 </script>
