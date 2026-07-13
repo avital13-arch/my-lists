@@ -258,6 +258,58 @@ window._initPlaces = function () {
   });
 
   render();
+
+  // ── Export / Import hooks ──────────────────────
+  window._exportPlaces = function () {
+    const snapshot = JSON.parse(JSON.stringify(items));
+    // Legacy split for backward compatibility
+    const legacyPlaces = snapshot
+      .filter(i => !i.value || i.value === i.name || !/^https?:\/\//i.test(i.value))
+      .map(i => ({ id: i.id, text: i.name, visited: i.done }));
+    const legacyLinks = snapshot
+      .filter(i => i.value && i.value !== i.name && /^https?:\/\//i.test(i.value))
+      .map(i => ({ id: i.id, label: i.name, url: i.value, opened: i.done }));
+    return {
+      merged: snapshot,
+      legacy: { places: legacyPlaces, links: legacyLinks }
+    };
+  };
+
+  window._importPlaces = function (data) {
+    if (!data || typeof data !== 'object') return;
+
+    let incoming = [];
+    if (Array.isArray(data.merged)) {
+      incoming = data.merged.map(normalizeItem).filter(i => i.name || i.value);
+    } else if (data.legacy) {
+      const fromPlaces = Array.isArray(data.legacy.places)
+        ? data.legacy.places.map(p => normalizeItem({ id: p.id, name: p.text, value: p.text, done: !!p.visited }))
+        : [];
+      const fromLinks = Array.isArray(data.legacy.links)
+        ? data.legacy.links.map(l => normalizeItem({ id: l.id, name: l.label, value: l.url, done: !!l.opened }))
+        : [];
+      incoming = [...fromPlaces, ...fromLinks].filter(i => i.name || i.value);
+    }
+
+    const existingKeys = new Set(
+      items.map(i => `${i.name.toLowerCase()}|${i.value.toLowerCase()}`)
+    );
+    incoming.forEach(item => {
+      const key = `${item.name.toLowerCase()}|${item.value.toLowerCase()}`;
+      if (existingKeys.has(key)) {
+        const existing = items.find(
+          i => `${i.name.toLowerCase()}|${i.value.toLowerCase()}` === key
+        );
+        if (existing) existing.done = existing.done || item.done;
+      } else {
+        existingKeys.add(key);
+        items.push({ ...item, id: crypto.randomUUID() });
+      }
+    });
+
+    save();
+    render();
+  };
 };
 
 // Backward compatibility for older bootstraps.

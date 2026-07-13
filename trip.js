@@ -567,4 +567,55 @@ window._initTrip = function () {
   clearModal.addEventListener('click', e => { if (e.target === clearModal) closeClearModal(); });
 
   if (trip && trip.places && trip.places.length > 0) showCalendar(); else showSetup();
+
+  // ── Export / Import hooks ──────────────────────
+  window._exportTrip = function () {
+    return trip ? JSON.parse(JSON.stringify(trip)) : null;
+  };
+
+  window._importTrip = function (incomingTrip) {
+    if (!incomingTrip) return; // no trip in export — skip silently
+
+    if (trip && Array.isArray(trip.places) && trip.places.length > 0) {
+      const ok = window.confirm(
+        `An active trip "${trip.name}" already exists.\n\n` +
+        `The imported file contains trip "${incomingTrip.name || 'Unnamed Trip'}".\n\n` +
+        `Replace the current trip with the imported one?`
+      );
+      if (!ok) return;
+    }
+
+    // Migrate old single-place format if present in imported data
+    let normalized = incomingTrip;
+    if (normalized && !normalized.places && normalized.city) {
+      normalized = {
+        name: normalized.name || 'My Trip',
+        places: [{
+          id: crypto.randomUUID(),
+          city: normalized.city,
+          startDate: normalized.startDate,
+          endDate: normalized.endDate,
+          lat: normalized.lat || null,
+          lon: normalized.lon || null,
+          weather: normalized.weather || {},
+          days: normalized.days || {}
+        }]
+      };
+    }
+
+    // Regenerate IDs to avoid any ID collisions
+    if (normalized && Array.isArray(normalized.places)) {
+      normalized.places = normalized.places.map(p => ({
+        ...p,
+        id: crypto.randomUUID(),
+        days: p.days || {},
+        weather: p.weather || {}
+      }));
+    }
+
+    trip = normalized;
+    save();
+    if (trip && Array.isArray(trip.places) && trip.places.length > 0) showCalendar();
+    else showSetup();
+  };
 };

@@ -13,6 +13,14 @@
   <!-- ── Banner ─────────────────────────────────── -->
   <div class="app-banner">
     <h1>My Lists</h1>
+    <div class="app-actions">
+      <button id="export-all-btn" class="app-action-btn app-action-btn--export" type="button"
+              title="Export all lists to a JSON file">📤 Export All</button>
+      <button id="import-all-btn" class="app-action-btn app-action-btn--import" type="button"
+              title="Load a previously exported JSON file">📥 Import</button>
+    </div>
+    <p id="export-import-feedback" class="export-import-feedback" hidden></p>
+    <input type="file" id="import-file-input" accept=".json,application/json" hidden />
   </div>
 
   <!-- ══ Section 1: Checklist ══════════════════════ -->
@@ -154,11 +162,13 @@
 <script src="app.js?v=6"></script>
 <script src="places-links.js?v=6"></script>
 <script src="trip.js?v=6"></script>
+<script src="export-import.js?v=6"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     window._initChecklist();
     window._initPlaces();
     window._initTrip();
+    window._initExportImport();
   });
 </script>
 

@@ -241,4 +241,48 @@ window._initChecklist = function () {
   saveAll();
   refreshAddPersonState();
   render();
+
+  // ── Export / Import hooks ──────────────────────
+  window._exportChecklist = function () {
+    return {
+      persons: JSON.parse(JSON.stringify(persons)),
+      currentPerson,
+      // Legacy payload for backward compatibility
+      legacy: {
+        items: persons[currentPerson] ? JSON.parse(JSON.stringify(persons[currentPerson])) : [],
+        storageKey: 'checklist-persons'
+      }
+    };
+  };
+
+  window._importChecklist = function (data) {
+    if (!data || typeof data !== 'object') return;
+    const incomingPersons = data.persons;
+    if (!incomingPersons || typeof incomingPersons !== 'object' || Array.isArray(incomingPersons)) return;
+
+    for (const [name, list] of Object.entries(incomingPersons)) {
+      const trimmedName = String(name || '').trim();
+      if (!trimmedName) continue;
+      const incoming = Array.isArray(list)
+        ? list.map(normalizeItem).filter(i => i.text)
+        : [];
+      // Find existing person (case-insensitive match)
+      const existingKey = Object.keys(persons)
+        .find(k => k.toLowerCase() === trimmedName.toLowerCase());
+      if (existingKey) {
+        // Merge: append items whose text is not already present
+        const existingTexts = new Set(persons[existingKey].map(i => i.text.toLowerCase()));
+        const newItems = incoming
+          .filter(i => !existingTexts.has(i.text.toLowerCase()))
+          .map(i => ({ ...i, id: crypto.randomUUID() }));
+        persons[existingKey].push(...newItems);
+      } else {
+        // New person: add with fresh IDs
+        persons[trimmedName] = incoming.map(i => ({ ...i, id: crypto.randomUUID() }));
+      }
+    }
+
+    saveAll();
+    render();
+  };
 };
