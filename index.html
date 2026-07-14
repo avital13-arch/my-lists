@@ -132,6 +132,15 @@
     </div>
   </section>
 
+  <!-- ══ Section 4: Ports Report ══════════════════ -->
+  <section class="page-section" id="report">
+    <h2 class="section-title">🧾 Ports &amp; Locations Report</h2>
+    <p class="report-subtitle">Great Masurian Lakes summary with source links and pricing notes.</p>
+    <div id="report-content" class="report-content" aria-live="polite">
+      <p class="report-loading">Loading report...</p>
+    </div>
+  </section>
+
   <!-- Clear Activities Modal -->
   <div id="trip-clear-modal" class="modal-overlay" hidden>
     <div class="modal-container">
@@ -163,12 +172,14 @@
 <script src="places-links.js?v=6"></script>
 <script src="trip.js?v=6"></script>
 <script src="export-import.js?v=6"></script>
+<script src="report.js?v=1"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     window._initChecklist();
     window._initPlaces();
     window._initTrip();
     window._initExportImport();
+    window._initReport?.();
   });
 </script>
 

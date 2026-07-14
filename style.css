@@ -678,6 +678,98 @@ body {
 .page-section#trip { border-left: 7px solid var(--color-purple); }
 .page-section#trip .section-title { background: linear-gradient(135deg, var(--color-purple), var(--color-purple-light)); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
+.page-section#report { border-left: 7px solid #0ea5a4; }
+.page-section#report .section-title { background: linear-gradient(135deg, #0f766e, #0ea5a4); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+.report-subtitle {
+  color: #475569;
+  margin: -0.8rem 0 1.2rem;
+  font-size: 0.95rem;
+}
+
+.report-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.7rem;
+  color: #1f2937;
+}
+
+.report-content h1,
+.report-content h2,
+.report-content h3,
+.report-content h4,
+.report-content h5,
+.report-content h6 {
+  margin: 1rem 0 0.45rem;
+  line-height: 1.3;
+}
+
+.report-content p {
+  margin: 0;
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.report-content ul {
+  margin: 0.15rem 0 0.6rem 1.2rem;
+  padding: 0;
+  display: grid;
+  gap: 0.32rem;
+}
+
+.report-content a {
+  color: #0369a1;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+}
+
+.report-content a:hover,
+.report-content a:focus-visible {
+  color: #075985;
+  text-decoration-thickness: 2px;
+}
+
+.report-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.report-content table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.report-content th,
+.report-content td {
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+  line-height: 1.42;
+}
+
+.report-content th {
+  background: rgba(14, 165, 164, 0.1);
+  font-weight: 800;
+}
+
+.report-loading {
+  color: #64748b;
+}
+
+.report-error {
+  color: #991b1b;
+  background: rgba(254, 226, 226, 0.85);
+  border: 1px solid rgba(248, 113, 113, 0.55);
+  border-radius: 10px;
+  padding: 0.85rem;
+}
+
 /* ════════════ CHECKLIST PERSON CONTROLS ════════════ */
 .person-bar {
   display: flex;
