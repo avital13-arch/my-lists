@@ -3,6 +3,15 @@ window._initReport = function () {
 
   const REPORT_PATH = 'ports_locations_prices_report.md';
   const container = document.getElementById('report-content');
+  const jumpBtn = document.getElementById('jump-report-btn');
+  const reportSection = document.getElementById('report');
+
+  if (jumpBtn && reportSection) {
+    jumpBtn.addEventListener('click', () => {
+      reportSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
   if (!container) return;
 
   fetch(REPORT_PATH)
