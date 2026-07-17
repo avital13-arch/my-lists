@@ -7,6 +7,23 @@
   <link rel="stylesheet" href="style.css?v=8" />
 </head>
 <body>
+<script>
+  (function () {
+    var palettes = [
+      'linear-gradient(135deg, #667eea, #764ba2)',
+      'linear-gradient(135deg, #f093fb, #f5576c)',
+      'linear-gradient(135deg, #4facfe, #00f2fe)',
+      'linear-gradient(135deg, #43e97b, #38f9d7)',
+      'linear-gradient(135deg, #fa709a, #fee140)',
+      'linear-gradient(135deg, #a18cd1, #fbc2eb)',
+      'linear-gradient(135deg, #f7971e, #ffd200)',
+      'linear-gradient(135deg, #56ab2f, #a8e063)',
+      'linear-gradient(135deg, #11998e, #38ef7d)',
+      'linear-gradient(135deg, #ee0979, #ff6a00)',
+    ];
+    document.body.style.background = palettes[Math.floor(Math.random() * palettes.length)];
+  })();
+</script>
 
 <div class="app">
 
