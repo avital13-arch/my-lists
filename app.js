@@ -6,10 +6,12 @@ window._initChecklist = function () {
   const CURRENT_PERSON_KEY = 'checklist-current-person';
 
   function normalizeItem(raw) {
+    const qty = Number(raw?.qty);
     return {
       id: raw?.id || crypto.randomUUID(),
       text: String(raw?.text || '').trim(),
-      checked: !!raw?.checked
+      checked: !!raw?.checked,
+      qty: qty >= 1 ? qty : 1
     };
   }
 
@@ -131,6 +133,43 @@ window._initChecklist = function () {
     label.addEventListener('dblclick', onEdit);
     label.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); onEdit(); } });
 
+    const qtyControl = document.createElement('div');
+    qtyControl.className = 'qty-control';
+
+    const qtyMinus = document.createElement('button');
+    qtyMinus.type = 'button';
+    qtyMinus.className = 'qty-btn qty-minus';
+    qtyMinus.textContent = '−';
+    qtyMinus.setAttribute('aria-label', 'Decrease quantity');
+    qtyMinus.disabled = item.qty <= 1;
+
+    const qtyDisplay = document.createElement('span');
+    qtyDisplay.className = 'qty-display';
+    qtyDisplay.textContent = item.qty;
+
+    const qtyPlus = document.createElement('button');
+    qtyPlus.type = 'button';
+    qtyPlus.className = 'qty-btn qty-plus';
+    qtyPlus.textContent = '+';
+    qtyPlus.setAttribute('aria-label', 'Increase quantity');
+
+    qtyMinus.addEventListener('click', () => {
+      if (item.qty > 1) {
+        item.qty--;
+        qtyDisplay.textContent = item.qty;
+        qtyMinus.disabled = item.qty <= 1;
+        saveAll();
+      }
+    });
+    qtyPlus.addEventListener('click', () => {
+      item.qty++;
+      qtyDisplay.textContent = item.qty;
+      qtyMinus.disabled = false;
+      saveAll();
+    });
+
+    qtyControl.append(qtyMinus, qtyDisplay, qtyPlus);
+
     const actions = document.createElement('div');
     actions.className = 'item-actions';
     actions.appendChild(iconBtn('✏️', 'Edit',   'edit',   onEdit));
@@ -140,14 +179,14 @@ window._initChecklist = function () {
       render();
     }));
 
-    li.append(checkbox, label, actions);
+    li.append(checkbox, label, qtyControl, actions);
     return li;
   }
 
   function addItem() {
     const text = input.value.trim();
     if (!text) { input.focus(); return; }
-    currentItems().push({ id: crypto.randomUUID(), text, checked: false });
+    currentItems().push({ id: crypto.randomUUID(), text, checked: false, qty: 1 });
     saveAll();
     render();
     input.value = ''; input.focus();
