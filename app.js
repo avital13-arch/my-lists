@@ -170,10 +170,6 @@ window._initChecklist = function () {
 
     qtyControl.append(qtyMinus, qtyDisplay, qtyPlus);
 
-    const itemContent = document.createElement('div');
-    itemContent.className = 'item-content';
-    itemContent.append(label, qtyControl);
-
     const actions = document.createElement('div');
     actions.className = 'item-actions';
     actions.appendChild(iconBtn('✏️', 'Edit',   'edit',   onEdit));
@@ -183,7 +179,7 @@ window._initChecklist = function () {
       render();
     }));
 
-    li.append(checkbox, itemContent, actions);
+    li.append(checkbox, label, qtyControl, actions);
     return li;
   }
 

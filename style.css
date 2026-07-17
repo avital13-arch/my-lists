@@ -563,18 +563,11 @@ body {
 }
 
 /* ════════════ QUANTITY CONTROL ════════════ */
-.item-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 0.35rem;
-  min-width: 0;
-}
-
 .qty-control {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  flex-shrink: 0;
 }
 
 .qty-btn {
